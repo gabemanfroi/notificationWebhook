@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	constants "github.com/gabemanfroi/notificationWebhook/internal/infra"
 	"github.com/opensearch-project/opensearch-go"
 	"github.com/opensearch-project/opensearch-go/opensearchapi"
 	"io"
@@ -28,7 +27,7 @@ func GetQueryMarshalledJson(query map[string]interface{}) []byte {
 
 func ExecuteElasticsearchQuery(queryJson []byte, client *opensearch.Client) *opensearchapi.Response {
 	req := opensearchapi.SearchRequest{
-		Index: []string{constants.WazuhAlertsIndex},
+		Index: []string{"seclab-events"},
 		Body:  bytes.NewReader(queryJson),
 	}
 

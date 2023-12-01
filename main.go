@@ -20,7 +20,7 @@ type Payload struct {
 
 func init() {
 	log.Println("Setting up server...")
-	if os.Getenv(infra.AppEnvironment) == "local" {
+	if os.Getenv("APP_ENV") == "local" {
 		utils.HandleError(godotenv.Load(), "Error loading .env file")
 	}
 	core.LoadConfig()
@@ -33,6 +33,7 @@ func main() {
 
 	r.POST("/webhook/notify", func(c *gin.Context) {
 		var payload Payload
+
 		if err := c.ShouldBindJSON(&payload); err != nil {
 			c.JSON(400, gin.H{"error": err.Error()})
 			return
@@ -50,11 +51,14 @@ func main() {
 			c.JSON(400, gin.H{"error": err.Error()})
 		}
 
-		infra.NotifyAlert(decodedResponse)
+		infra.NotifyAlertSlack(decodedResponse)
+		infra.NotifyAlertTelegram(decodedResponse)
 
 		c.JSON(200, decodedResponse)
 	})
 
-	// Start the server on port 8080
-	r.Run(":8082")
+	err := r.Run(":8082")
+	if err != nil {
+		return
+	}
 }
